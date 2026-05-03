@@ -2,8 +2,10 @@ def load(file: str) -> None:
     try:
         with open(file, "r") as f:
             print(f.read())
-    except Exception:
-        pass
+    except FileNotFoundError as e:
+        print(e)
+    except Exception as e:
+        print(e)
 
 def main():
     pass
