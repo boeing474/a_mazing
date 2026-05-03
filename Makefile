@@ -2,21 +2,25 @@ PYTHON = python3
 PIP = pip3
 
 .PHONY: install
-install:
+install: venv
 	$(PIP) install -r requirements.txt
 
 .PHONY: run
-run:
-	$(PYTHON) # arquivo princp. do prj
+run: install
+	$(PYTHON) a_maze_ing.py config.txt
 
 .PHONY: debug
-debug:
-	$(PYTHON) -m pdb # arquivo princp. do prj
+debug: install
+	$(PYTHON) -m pdb a_maze_ing.py config.txt
 
 .PHONY: clean
 clean:
 	rm -rf __pycache__/
 	rm .mypy_cache/
+
+.PHONY: venv
+venv:
+	python3 -m venv venv
 
 .PHONY: lint
 lint:
