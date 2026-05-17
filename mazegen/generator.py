@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 
-from .config import MazeConfig
+from .parse_config import MazeConfig
 from .model import Maze
 from .pattern import get_42_pattern_cells
 
