@@ -9,8 +9,8 @@ description = "Reusable maze generator package for the 42 A-Maze-ing project"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-  { name = "glopes-a" },
-  { name = "vguerra-" },
+  { name = "ramrodri" },
+  { name = "pboeing-" },
 ]
 
 [tool.setuptools.packages.find]
