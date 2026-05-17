@@ -1,4 +1,5 @@
-"""Serialization utilities for exporting maze data to the standard project format."""
+"""Serialization utilities for exporting maze data to the standard project
+format."""
 
 from __future__ import annotations
 
@@ -13,7 +14,8 @@ def build_output_text(
     exit_coord: Coordinate,
     path_directions: str,
 ) -> str:
-    """Construct the standardized string representation of the maze and its metadata."""
+    """Construct the standardized string representation of the maze and its
+    metadata."""
 
     # Generate the hexadecimal representation of the walls for each row
     grid_rows = [
@@ -36,7 +38,8 @@ def build_output_text(
 
 
 def write_output_file(path: Path, contents: str) -> None:
-    """Save the serialized maze content to the filesystem, creating directories if needed."""
+    """Save the serialized maze content to the filesystem, creating
+    directories if needed."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(contents, encoding="utf-8")
