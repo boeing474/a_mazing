@@ -1,4 +1,4 @@
-"""Main data structures used by the genarator."""
+"""Main core data structures used by the maze generator."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from enum import IntEnum
 
 
 class Direction(IntEnum):
-    """Cardinal directions mapped to the subject hexadecimal wall bits."""
+    """Cardinal directions mapped to their respective hexadecimal wall bits."""
 
     NORTH = 1
     EAST = 2
@@ -16,131 +16,130 @@ class Direction(IntEnum):
 
     @property
     def delta(self) -> tuple[int, int]:
-        """Return the coordinate delta for this direction."""
-
-        deltas = {
-            Direction.NORTH: (0, -1),
-            Direction.EAST: (1, 0),
-            Direction.SOUTH: (0, 1),
-            Direction.WEST: (-1, 0),
-        }
-        return deltas[self]
+        """Return the (dx, dy) coordinate delta for this direction."""
+        match self:
+            case Direction.NORTH:
+                return (0, -1)
+            case Direction.EAST:
+                return (1, 0)
+            case Direction.SOUTH:
+                return (0, 1)
+            case Direction.WEST:
+                return (-1, 0)
 
     @property
     def opposite(self) -> "Direction":
-        """Return the opposite direction."""
-
-        opposites = {
-            Direction.NORTH: Direction.SOUTH,
-            Direction.EAST: Direction.WEST,
-            Direction.SOUTH: Direction.NORTH,
-            Direction.WEST: Direction.EAST,
-        }
-        return opposites[self]
+        """Return the strictly opposite cardinal direction."""
+        match self:
+            case Direction.NORTH:
+                return Direction.SOUTH
+            case Direction.EAST:
+                return Direction.WEST
+            case Direction.SOUTH:
+                return Direction.NORTH
+            case Direction.WEST:
+                return Direction.EAST
 
     @property
     def symbol(self) -> str:
-        """Return the single-letter direction symbol."""
-
-        symbols = {
-            Direction.NORTH: "N",
-            Direction.EAST: "E",
-            Direction.SOUTH: "S",
-            Direction.WEST: "W",
-        }
-        return symbols[self]
+        """Return the single-character representation of the direction."""
+        match self:
+            case Direction.NORTH:
+                return "N"
+            case Direction.EAST:
+                return "E"
+            case Direction.SOUTH:
+                return "S"
+            case Direction.WEST:
+                return "W"
 
     @classmethod
     def ordered(cls) -> tuple["Direction", ...]:
-        """Return directions in the subject bit order."""
+        """Return directions strictly in their bit order (N, E, S, W)."""
+        return tuple(cls)
 
-        return (cls.NORTH, cls.EAST, cls.SOUTH, cls.WEST)
 
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Coordinate:
-    """Zero-based coordinate inside the maze grid."""
+    """Immutable, zero-based Cartesian coordinate inside the maze grid."""
 
     x: int
     y: int
 
     def moved(self, direction: Direction) -> "Coordinate":
-        """Return the adjacent coordinate in the given direction."""
-
+        """Calculate and return the adjacent coordinate
+        in the specified direction."""
         dx, dy = direction.delta
         return Coordinate(self.x + dx, self.y + dy)
 
 
-@dataclass
+@dataclass(slots=True)
 class Cell:
-    """A single maze cell encoded as a 4-bit wall mask."""
+    """A single maze cell encoding its four walls
+    as a 4-bit bitmask."""
 
     walls: int = 0xF
 
     def has_wall(self, direction: Direction) -> bool:
-        """Return whether the wall is closed in the given direction."""
-
-        return bool(self.walls & int(direction))
+        """Check if the wall in the specified
+        direction is closed."""
+        return bool(self.walls & direction.value)
 
     def open_wall(self, direction: Direction) -> None:
-        """Remove a wall in the given direction."""
-
-        self.walls &= ~int(direction)
+        """Destroy the wall in the specified direction."""
+        self.walls &= ~direction.value
 
 
 class Maze:
-    """Mutable maze grid with coherent wall operations."""
+    """Mutable maze grid handling core topological operations and state."""
+
+    __slots__ = ("width", "height", "_cells")
 
     def __init__(self, width: int, height: int) -> None:
-        """Create a maze filled with closed walls."""
-
+        """Initialize a fully walled maze of the given dimensions."""
         self.width = width
         self.height = height
         self._cells = [Cell() for _ in range(width * height)]
 
     def in_bounds(self, coord: Coordinate) -> bool:
-        """Return whether the coordinate belongs to this maze."""
-
+        """Verify if a coordinate falls within the grid dimensions."""
         return 0 <= coord.x < self.width and 0 <= coord.y < self.height
 
     def cell_at(self, coord: Coordinate) -> Cell:
-        """Return the cell at the given coordinate."""
-
+        """Retrieve the Cell object at the specified coordinate."""
         return self._cells[coord.y * self.width + coord.x]
 
     def neighbors(
         self,
         coord: Coordinate,
     ) -> list[tuple[Direction, Coordinate]]:
-        """Return in-bounds neighbor coordinates around a cell."""
-
-        result: list[tuple[Direction, Coordinate]] = []
-        for direction in Direction.ordered():
-            neighbor = coord.moved(direction)
-            if self.in_bounds(neighbor):
-                result.append((direction, neighbor))
-        return result
+        """List all valid, in-bounds adjacent coordinates
+        around a given cell."""
+        return [
+            (direction, coord.moved(direction))
+            for direction in Direction
+            if self.in_bounds(coord.moved(direction))
+        ]
 
     def carve_passage(self, origin: Coordinate, direction: Direction) -> None:
-        """Open a passage between adjacent cells."""
-
+        """Bidirectionally open a path between two adjacent cells."""
         target = origin.moved(direction)
-        if not self.in_bounds(origin) or not self.in_bounds(target):
-            raise ValueError("Cannot carve passage outside maze bounds.")
+        if not (self.in_bounds(origin) and self.in_bounds(target)):
+            raise ValueError("Cannot carve a passage outside "
+                             "the maze boundaries.")
+
         self.cell_at(origin).open_wall(direction)
         self.cell_at(target).open_wall(direction.opposite)
 
     def is_open(self, origin: Coordinate, direction: Direction) -> bool:
-        """Return whether a move is possible from one cell to its neighbor."""
-
-        target = origin.moved(direction)
-        if not self.in_bounds(target):
+        """Determine if passage is clear from the origin
+        in the given direction."""
+        if not self.in_bounds(origin.moved(direction)):
             return False
         return not self.cell_at(origin).has_wall(direction)
 
     def iter_coordinates(self) -> list[Coordinate]:
-        """Return all maze coordinates in row order."""
-
+        """Generate all grid coordinates sequentially by row."""
         return [
             Coordinate(x, y)
             for y in range(self.height)
