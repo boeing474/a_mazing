@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from .model import Coordinate, Direction, Maze
 from .internal42 import get_42_pattern_cells
+from .model import Coordinate, Direction, Maze
 
 
-# Códigos ANSI para controle de cores no terminal
+# ANSI color codes for terminal output
 RESET_COLOR = "\033[0m"
-ENTRY_COLOR = "\033[32m"    # Verde
-EXIT_COLOR = "\033[31m"     # Vermelho
-PATH_COLOR = "\033[33m"     # Amarelo
-PATTERN_COLOR = "\033[35m"  # Magenta
+ENTRY_COLOR = "\033[32m"     # Green
+EXIT_COLOR = "\033[31m"      # Red
+PATH_COLOR = "\033[33m"      # Yellow
+PATTERN_COLOR = "\033[35m"   # Magenta
 
 
 def render_ascii(
@@ -21,8 +21,7 @@ def render_ascii(
     solution: list[Coordinate],
     wall_color: str = "",
 ) -> str:
-    """Renderiza o labirinto com paredes sólidas, entrada, saída e caminho da solução."""
-
+    """Render the maze with solid walls, entry, exit, and solution path."""
     solution_cells = set(solution[1:-1])
     pattern_cells = get_42_pattern_cells(
         maze.width,
@@ -32,7 +31,7 @@ def render_ascii(
     )
     lines: list[str] = []
 
-    # Topo do labirinto
+    # Top of the maze
     top = _wall("██", wall_color)
     for x in range(maze.width):
         top += (
@@ -42,23 +41,23 @@ def render_ascii(
         )
     lines.append(top)
 
-    # Corpo do labirinto
+    # Body of the maze
     for y in range(maze.height):
         middle = ""
         bottom = _wall("██", wall_color)
-        
+
         for x in range(maze.width):
             coord = Coordinate(x, y)
             cell = maze.cell_at(coord)
-            
-            # Parede Oeste (2 chars)
+
+            # West wall (2 chars)
             middle += (
                 _wall("██", wall_color)
                 if cell.has_wall(Direction.WEST)
                 else "  "
             )
-            
-            # Interior da célula preenchida com cores e blocos sólidos
+
+            # Cell interior filled with colors and solid blocks
             middle += _cell_marker(
                 coord,
                 entry,
@@ -66,15 +65,16 @@ def render_ascii(
                 solution_cells,
                 pattern_cells,
             )
-            
-            # Parede Sul (cobre a célula e conecta ao próximo pilar = 4 chars)
+
+            # South wall (covers the cell and connects to
+            # the next pillar = 4 chars)
             bottom += (
                 _wall("████", wall_color)
                 if cell.has_wall(Direction.SOUTH)
                 else f"  {_wall('██', wall_color)}"
             )
-            
-        # Parede Leste (fechamento da última célula da linha)
+
+        # East wall (closes the last cell of the row)
         middle += (
             _wall("██", wall_color)
             if maze.cell_at(
@@ -82,7 +82,7 @@ def render_ascii(
             ).has_wall(Direction.EAST)
             else "  "
         )
-        
+
         lines.append(middle)
         lines.append(bottom)
 
@@ -96,8 +96,7 @@ def _cell_marker(
     solution_cells: set[Coordinate],
     pattern_cells: set[Coordinate],
 ) -> str:
-    """Retorna os blocos sólidos coloridos usados para exibir elementos interativos."""
-
+    """Return the colored solid blocks used to display interactive elements."""
     if coord == entry:
         return f"{ENTRY_COLOR}██{RESET_COLOR}"
     if coord == exit_coord:
@@ -106,13 +105,12 @@ def _cell_marker(
         return f"{PATTERN_COLOR}██{RESET_COLOR}"
     if coord in solution_cells:
         return f"{PATH_COLOR}██{RESET_COLOR}"
-    
+
     return "  "
 
 
 def _wall(token: str, wall_color: str) -> str:
-    """Retorna um token de parede opcionalmente com códigos de cores ANSI."""
-
+    """Return a wall token optionally with ANSI color codes."""
     if not wall_color:
         return token
     return f"{wall_color}{token}{RESET_COLOR}"
