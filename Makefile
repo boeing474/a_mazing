@@ -15,8 +15,11 @@ debug: install
 
 .PHONY: clean
 clean:
-	rm -rf __pycache__/
-	rm .mypy_cache/
+	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
+	find . -type d -name ".mypy_cache" -prune -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -prune -exec rm -rf {} +
+	find . -type d -name "*.egg-info" -prune -exec rm -rf {} +
+	rm -rf build dist
 
 .PHONY: venv
 venv:
