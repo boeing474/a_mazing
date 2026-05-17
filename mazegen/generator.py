@@ -6,7 +6,7 @@ import random
 
 from .parse_config import MazeConfig
 from .model import Maze
-from .pattern import get_42_pattern_cells
+from .internal42 import get_42_pattern_cells
 
 
 class MazeGenerator:

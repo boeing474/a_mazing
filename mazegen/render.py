@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .model import Coordinate, Direction, Maze
-from .pattern import get_42_pattern_cells
+from .internal42 import get_42_pattern_cells
 
 
 RESET_COLOR = "\033[0m"
