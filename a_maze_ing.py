@@ -16,8 +16,11 @@ from mazegen import (
     solve_shortest_path,
     validate_maze,
 )
+from mazegen.internal42 import (
+    can_fit_42_pattern,
+    get_42_pattern_minimum_size,
+)
 from mazegen.output import build_output_text, write_output_file
-from mazegen.internal42 import can_fit_42_pattern, get_42_pattern_minimum_size
 from mazegen.render import render_ascii
 
 
@@ -122,7 +125,9 @@ def _run_interactive_session(config: MazeConfig) -> None:
             case "r" | "regen" | "regenerate":
                 gen_count += 1
                 active_config = _derive_next_config(config, gen_count)
-                maze, solution_path, path_str = _process_maze_lifecycle(active_config)
+                maze, solution_path, path_str = _process_maze_lifecycle(
+                    active_config
+                )
                 feedback_msg = "Maze successfully regenerated."
 
             case _:
@@ -132,7 +137,7 @@ def _run_interactive_session(config: MazeConfig) -> None:
 def _process_maze_lifecycle(
     config: MazeConfig,
 ) -> tuple[Maze, list[Coordinate], str]:
-    """Create, validate, solve, and save a maze based on the provided configuration."""
+    """Create, validate, solve, and save a maze based on the config."""
 
     maze_gen = MazeGenerator(config)
     generated_maze = maze_gen.generate()
@@ -165,24 +170,27 @@ def _derive_next_config(
     base_config: MazeConfig,
     iteration: int,
 ) -> MazeConfig:
-    """Create a new configuration object with an updated seed for regeneration."""
+    """Create a new configuration object with an updated seed."""
 
     if iteration == 0:
         return base_config
 
-    current_seed = base_config.seed if base_config.seed is not None else "interactive"
+    current_seed = (
+        base_config.seed if base_config.seed is not None else "interactive"
+    )
     return replace(base_config, seed=f"{current_seed}:regen:{iteration}")
 
 
 def _check_42_pattern_compatibility(config: MazeConfig) -> str:
-    """Construct a warning message if the maze dimensions cannot accommodate the 42 pattern."""
+    """Construct a warning if the dimensions cannot fit the 42 pattern."""
 
     if can_fit_42_pattern(config.width, config.height):
         return ""
 
     min_w, min_h = get_42_pattern_minimum_size()
     return (
-        f"Note: The 42 pattern was skipped. Current size ({config.width}x{config.height}) "
+        f"Note: The 42 pattern was skipped. "
+        f"Current size ({config.width}x{config.height}) "
         f"does not meet the minimum requirement ({min_w}x{min_h})."
     )
 
