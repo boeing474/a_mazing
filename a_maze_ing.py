@@ -1,5 +1,6 @@
 import sys
 import parse_config
+import maze_generator
 
 
 def main() -> None:
@@ -13,6 +14,12 @@ def main() -> None:
 
     print("Configs loaded successfully:")
     print(parsed_config)
+
+    qnt_cells = int(parsed_config["WIDTH"]) * int(parsed_config["HEIGHT"]) # parseando na forca aqui só pra testar.
+    
+    # logica de geracao do labirinto
+    maze = maze_generator.MazeGenerator()
+    maze.generate_grid(qnt_cells)
 
 
 if __name__ == "__main__":
