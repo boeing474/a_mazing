@@ -6,7 +6,12 @@ from .model import Coordinate, Direction, Maze
 from .internal42 import get_42_pattern_cells
 
 
+# Códigos ANSI para controle de cores no terminal
 RESET_COLOR = "\033[0m"
+ENTRY_COLOR = "\033[32m"    # Verde
+EXIT_COLOR = "\033[31m"     # Vermelho
+PATH_COLOR = "\033[33m"     # Amarelo
+PATTERN_COLOR = "\033[35m"  # Magenta
 
 
 def render_ascii(
@@ -31,9 +36,9 @@ def render_ascii(
     top = _wall("██", wall_color)
     for x in range(maze.width):
         top += (
-            _wall("████████", wall_color)
+            _wall("████", wall_color)
             if maze.cell_at(Coordinate(x, 0)).has_wall(Direction.NORTH)
-            else f"      {_wall('██', wall_color)}"
+            else f"  {_wall('██', wall_color)}"
         )
     lines.append(top)
 
@@ -46,29 +51,27 @@ def render_ascii(
             coord = Coordinate(x, y)
             cell = maze.cell_at(coord)
             
-            # Parede Oeste
+            # Parede Oeste (2 chars)
             middle += (
                 _wall("██", wall_color)
                 if cell.has_wall(Direction.WEST)
                 else "  "
             )
             
-            # Interior da célula (espaçamento ajustado para largura dupla)
-            middle += (
-                f"  {_cell_marker(
-                    coord,
-                    entry,
-                    exit_coord,
-                    solution_cells,
-                    pattern_cells,
-                )}  "
+            # Interior da célula preenchida com cores e blocos sólidos
+            middle += _cell_marker(
+                coord,
+                entry,
+                exit_coord,
+                solution_cells,
+                pattern_cells,
             )
             
-            # Parede Sul
+            # Parede Sul (cobre a célula e conecta ao próximo pilar = 4 chars)
             bottom += (
-                _wall("████████", wall_color)
+                _wall("████", wall_color)
                 if cell.has_wall(Direction.SOUTH)
-                else f"      {_wall('██', wall_color)}"
+                else f"  {_wall('██', wall_color)}"
             )
             
         # Parede Leste (fechamento da última célula da linha)
@@ -93,16 +96,17 @@ def _cell_marker(
     solution_cells: set[Coordinate],
     pattern_cells: set[Coordinate],
 ) -> str:
-    """Retorna os caracteres usados para exibir uma célula (ajustados para 2 caracteres)."""
+    """Retorna os blocos sólidos coloridos usados para exibir elementos interativos."""
 
     if coord == entry:
-        return "E "
+        return f"{ENTRY_COLOR}██{RESET_COLOR}"
     if coord == exit_coord:
-        return "X "
+        return f"{EXIT_COLOR}██{RESET_COLOR}"
     if coord in pattern_cells:
-        return "##"
+        return f"{PATTERN_COLOR}██{RESET_COLOR}"
     if coord in solution_cells:
-        return "**"
+        return f"{PATH_COLOR}██{RESET_COLOR}"
+    
     return "  "
 
 
