@@ -17,7 +17,7 @@ from mazegen import (
     validate_maze,
 )
 from mazegen.output import build_output_text, write_output_file
-from mazegen.pattern import can_fit_42_pattern, get_42_pattern_minimum_size
+from mazegen.internal42 import can_fit_42_pattern, get_42_pattern_minimum_size
 from mazegen.render import render_ascii
 
 ANSI_CLEAR_SCREEN = "\033[2J\033[H"
