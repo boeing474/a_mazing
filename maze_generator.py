@@ -20,4 +20,4 @@ class Cell:
         self.west = 0
 
     def show_cell(self):
-        print(f"{self.north}{self.east}{self.south}{self.west}")
+        print(f"{self.north}{self.east}{self.south}{self.west}", end="")
