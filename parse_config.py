@@ -21,6 +21,7 @@ def parse_to_dict(raw_content: str) -> dict[str, str]:
         
     return content_dict
 
+
 def validate_keys(parsed_config: dict[str, str]) -> None:
     """Checks if all required keys are present."""
     required_keys = {"WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"}
@@ -29,6 +30,7 @@ def validate_keys(parsed_config: dict[str, str]) -> None:
     if missing_keys:
         print(f"Error: Missing required configuration keys: {', '.join(missing_keys)}")
         sys.exit(1)
+
 
 def load(file_path: str) -> dict[str, str]:
     """Reads the file and returns the validated configuration dictionary."""
@@ -43,13 +45,15 @@ def load(file_path: str) -> dict[str, str]:
         print(f"Error reading file: {e}")
         sys.exit(1)
 
-    parsed_config = parse_to_dict(raw_content)
-    validate_keys(parsed_config)
-    
-    return parsed_config
+    config_dict = parse_to_dict(raw_content)
+    validate_keys(config_dict)
+
+    return config_dict
+
 
 def main() -> None:
     pass
+
 
 if __name__ == "__main__":
     main()
