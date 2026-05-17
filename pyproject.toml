@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "0.1.0"
+description = "Reusable maze generator package for the 42 A-Maze-ing project"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "ramrodri" },
+  { name = "pboeing-" },
+]
+
+[tool.setuptools.packages.find]
+include = ["mazegen*"]

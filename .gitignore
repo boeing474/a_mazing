@@ -3,3 +3,6 @@ __pycache__/
 __mypycache__/
 .DS_Store
 .mypy_cache/
+dist/
+build/
+*.egg-info/
